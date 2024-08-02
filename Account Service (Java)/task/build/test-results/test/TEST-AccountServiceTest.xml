@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="AccountServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-08-02T08:46:24" hostname="DESKTOP-GA8BNR1" time="5.327">
+  <properties/>
+  <testcase name="start" classname="AccountServiceTest" time="5.327"/>
+  <system-out><![CDATA[?[1;31m
+Start test 1?[0m
+?[0;34m
+?[0m?[0;34m  .   ____          _            __ _ _
+?[0m?[0;34m /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+?[0m?[0;34m( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+?[0m?[0;34m \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+?[0m?[0;34m  '  |____| .__|_| |_|_| |_\__, | / / / /
+?[0m?[0;34m =========|_|==============|___/=/_/_/_/
+?[0m?[0;34m :: Spring Boot ::                (v3.0.2)
+?[0m?[0;34m
+?[0m?[0;34m2024-08-02T10:46:25.659+02:00  INFO 17252 --- [    Test worker] account.AccountServiceApplication        : Starting AccountServiceApplication using Java 17.0.11 with PID 17252 (started by krste in C:\Users\krste\IdeaProjects\Account Service (Java)\Account Service (Java)\task)
+?[0m?[0;34m2024-08-02T10:46:25.663+02:00  INFO 17252 --- [    Test worker] account.AccountServiceApplication        : No active profile set, falling back to 1 default profile: "default"
+?[0m?[0;34m2024-08-02T10:46:26.457+02:00  INFO 17252 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+?[0m?[0;34m2024-08-02T10:46:26.509+02:00  INFO 17252 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 43 ms. Found 1 JPA repository interfaces.
+?[0m?[0;34m2024-08-02T10:46:27.021+02:00  INFO 17252 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 28852 (http)
+?[0m?[0;34m2024-08-02T10:46:27.031+02:00  INFO 17252 --- [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+?[0m?[0;34m2024-08-02T10:46:27.032+02:00  INFO 17252 --- [    Test worker] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.5]
+?[0m?[0;34m2024-08-02T10:46:27.108+02:00  INFO 17252 --- [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+?[0m?[0;34m2024-08-02T10:46:27.110+02:00  INFO 17252 --- [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1413 ms
+?[0m?[0;34m2024-08-02T10:46:27.330+02:00  INFO 17252 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+?[0m?[0;34m2024-08-02T10:46:27.516+02:00  INFO 17252 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:13b4baf1-e08c-49b3-b3d3-c10e620c9b2e user=SA
+?[0m?[0;34m2024-08-02T10:46:27.518+02:00  INFO 17252 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+?[0m?[0;34m2024-08-02T10:46:27.563+02:00  INFO 17252 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+?[0m?[0;34m2024-08-02T10:46:27.626+02:00  INFO 17252 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.1.6.Final
+?[0m?[0;34m2024-08-02T10:46:27.809+02:00  WARN 17252 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000021: Encountered deprecated setting [javax.persistence.sharedCache.mode], use [jakarta.persistence.sharedCache.mode] instead
+?[0m?[0;34m2024-08-02T10:46:27.935+02:00  INFO 17252 --- [    Test worker] SQL dialect                              : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+?[0m?[0;34m2024-08-02T10:46:28.635+02:00  INFO 17252 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+?[0m?[0;34m2024-08-02T10:46:28.644+02:00  INFO 17252 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+?[0m?[0;34m2024-08-02T10:46:28.958+02:00  WARN 17252 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+?[0m?[0;34m2024-08-02T10:46:29.299+02:00  INFO 17252 --- [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 14 endpoint(s) beneath base path '/actuator'
+?[0m?[0;34m2024-08-02T10:46:29.340+02:00  INFO 17252 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4a0a93ce, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@64404db6, org.springframework.security.web.context.SecurityContextHolderFilter@1046aaa4, org.springframework.security.web.header.HeaderWriterFilter@14f08a97, org.springframework.security.web.authentication.logout.LogoutFilter@12dd3501, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@5e609b42, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@32192a69, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@8b727cb, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@62f63625, org.springframework.security.web.session.SessionManagementFilter@6b72c62, org.springframework.security.web.access.ExceptionTranslationFilter@540ac21e, org.springframework.security.web.access.intercept.AuthorizationFilter@497cf31a]
+?[0m?[0;34m2024-08-02T10:46:29.644+02:00  INFO 17252 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 28852 (http) with context path ''
+?[0m?[0;34m2024-08-02T10:46:29.657+02:00  INFO 17252 --- [    Test worker] account.AccountServiceApplication        : Started AccountServiceApplication in 4.316 seconds (process running for 5.215)
+?[0;34m2024-08-02T10:46:29.938+02:00  INFO 17252 --- [io-28852-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+?[0m?[0;34m2024-08-02T10:46:29.939+02:00  INFO 17252 --- [io-28852-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+?[0m?[0;34m2024-08-02T10:46:29.940+02:00  INFO 17252 --- [io-28852-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+?[0m?[1;31m
+Start test 2?[0m
+?[1;31m
+Start test 3?[0m
+?[1;31m
+Start test 4?[0m
+?[1;31m
+Start test 5?[0m
+?[1;31m
+Start test 6?[0m
+?[1;31m
+Start test 7?[0m
+?[1;31m
+Start test 8?[0m
+?[1;31m
+Start test 9?[0m
+?[1;31m
+Start test 10?[0m
+?[1;31m
+Start test 11?[0m
+?[1;31m
+Start test 12?[0m
+?[1;31m
+Start test 13?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
