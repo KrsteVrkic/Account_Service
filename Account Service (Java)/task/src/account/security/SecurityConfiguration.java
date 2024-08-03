@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/admin/user").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/admin/user").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.PUT, "/api/admin/user/role").hasRole("ADMINISTRATOR")
-                        .anyRequest().permitAll()
+                        .anyRequest().pAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
