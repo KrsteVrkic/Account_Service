@@ -1,6 +1,7 @@
 package account.user;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -18,9 +19,14 @@ public class AppUser {
     private Long id;
     @NonNull
     private String name;
+    @NonNull
     private String lastname;
-    private String username;
+    @Email
+    @NonNull
+    @Column(unique = true)
     private String email;
+    @NonNull
     private String password;
+    @NonNull
     private String role;
 }

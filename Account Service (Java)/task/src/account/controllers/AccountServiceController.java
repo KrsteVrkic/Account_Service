@@ -1,7 +1,7 @@
 package account.controllers;
 
 import account.exceptions.UserExistException;
-import account.requests.SignUpRequest;
+import account.requests.SignupRequest;
 import account.responses.SignupResponse;
 import account.user.AppUser;
 import account.user.AppUserRepository;
@@ -26,21 +26,21 @@ public class AccountServiceController {
     }
 
     @PostMapping("/auth/signup")
-    public SignupResponse postSignUp(@Valid @RequestBody SignUpRequest r) {
-
-        var doesUserExist = appUserRepository.findAppUserByName(r.getName());
-        if (doesUserExist.isPresent()) throw new UserExistException();
+    public SignupResponse postSignup(@Valid @RequestBody SignupRequest r) {
 
         AppUser newUser = new AppUser();
         newUser.setName(r.getName());
         newUser.setLastname(r.getLastname());
         newUser.setEmail(r.getEmail());
+        newUser.setRole("USER");
         newUser.setPassword(passwordEncoder.encode(r.getPassword()));
 
-        AppUser savedUser = appUserRepository.save(newUser);
+        if (appUserRepository.findUserByEmailIgnoreCase(r.getEmail()).isPresent()) {
+            throw new UserExistException();
+        }
 
-        return new SignupResponse(
-                savedUser.getId(),
+        AppUser savedUser = appUserRepository.save(newUser);
+        return new SignupResponse(savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getLastname(),
                 savedUser.getEmail()

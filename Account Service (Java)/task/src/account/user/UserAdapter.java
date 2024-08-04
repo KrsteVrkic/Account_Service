@@ -7,10 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-class AppUserAdapter implements UserDetails {
+class UserAdapter implements UserDetails {
     private final AppUser appUser;
 
-    public AppUserAdapter(AppUser appUser) {
+    public UserAdapter(AppUser appUser) {
         this.appUser = appUser;
     }
 
@@ -25,7 +25,7 @@ class AppUserAdapter implements UserDetails {
     }
 
     @Override
-    public String getUsername() { return appUser.getUsername(); }
+    public String getUsername() { return appUser.getEmail(); }
 
     @Override
     public boolean isAccountNonExpired() {
