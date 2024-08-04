@@ -5,6 +5,7 @@ import account.requests.SignUpRequest;
 import account.responses.SignupResponse;
 import account.user.AppUser;
 import account.user.AppUserRepository;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;

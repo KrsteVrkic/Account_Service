@@ -16,6 +16,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -35,9 +36,12 @@ public class SecurityConfiguration {
                 )
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyRole("USER", "ACCOUNTANT", "ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.GET, "/api/empl/payment").hasAnyRole("ACCOUNTANT", "ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyRole("USER",
+                                "ACCOUNTANT",
+                                "ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/empl/payment").hasAnyRole("ACCOUNTANT",
+                                "ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST, "/api/acct/payments").hasRole("ACCOUNTANT")
                         .requestMatchers(HttpMethod.PUT, "/api/acct/payments").hasRole("ACCOUNTANT")
                         .requestMatchers(HttpMethod.GET, "/api/admin/user").hasRole("ADMINISTRATOR")
