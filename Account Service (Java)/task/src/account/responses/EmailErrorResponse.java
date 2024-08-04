@@ -1,4 +1,4 @@
-package account.response;
+package account.responses;
 
 import java.util.Date;
 
@@ -17,22 +17,18 @@ public class EmailErrorResponse {
         this.error = error;
         this.path = path;
     }
-
     public Date getTimestamp() {
         return timestamp;
     }
     public int getStatus() {
         return status;
     }
-
     public String getError() {
         return error;
     }
-
     public String getPath() {
         return path;
     }
-
     public String getMessage() {
         return message;
     }

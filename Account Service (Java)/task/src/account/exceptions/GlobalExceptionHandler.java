@@ -1,6 +1,6 @@
-package account.exception;
+package account.exceptions;
 
-import account.response.EmailErrorResponse;
+import account.responses.EmailErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
