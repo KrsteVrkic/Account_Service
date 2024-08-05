@@ -1,7 +1,7 @@
 package account.services;
 
 import account.exceptions.PasswordBreachedException;
-import account.exceptions.PasswordSameAsCurrentException;
+import account.exceptions.PasswordEqualsException;
 import account.exceptions.UserNotFoundException;
 import account.entities.requests.ChangePasswordRequest;
 import account.entities.responses.ChangePasswordResponse;
@@ -46,7 +46,7 @@ public class AccountService {
         String encodedPassword = appUser.getPassword();
 
         if (passwordEncoder.matches(newPassword, encodedPassword)) {
-            throw new PasswordSameAsCurrentException();
+            throw new PasswordEqualsException();
         }
 
         if (breachedPasswords.isBreached(newPassword)) {

@@ -2,8 +2,11 @@ package account.exceptions;
 
 import account.entities.responses.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,44 +19,56 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidArgument(MethodArgumentNotValidException e,
-                                                               HttpServletRequest request) {
-        List<String> messages = e.getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.toList());
-        String message = String.join(", ", messages);
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            ConstraintViolationException.class,
+            HttpMessageNotReadableException.class,
+            DataIntegrityViolationException.class,
+            IllegalArgumentException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(Exception e, HttpServletRequest request) {
+        String message = getMessageFromException(e);
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST, request.getRequestURI());
     }
 
-    @ExceptionHandler(UserExistException.class)
-    public ResponseEntity<ErrorResponse> handleUserExistException(UserExistException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    @ExceptionHandler({
+            UserExistException.class,
+            PasswordTooShortException.class,
+            PasswordBreachedException.class,
+            PasswordEqualsException.class
+    })
+    public ResponseEntity<ErrorResponse> handleCustomExceptions(Exception e, HttpServletRequest request) {
+        return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
     }
 
-    @ExceptionHandler(PasswordTooShortException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordTooShortException(PasswordTooShortException ex,
-                                                                         HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception e, HttpServletRequest request) {
+        return buildErrorResponse("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
     }
 
-    @ExceptionHandler(PasswordBreachedException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordBreachedException(PasswordBreachedException ex,
-                                                                         HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
-    }
-
-    @ExceptionHandler(PasswordSameAsCurrentException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordSameAsCurrentException(PasswordSameAsCurrentException ex,
-                                                                              HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    private String getMessageFromException(Exception e) {
+        if (e instanceof MethodArgumentNotValidException) {
+            MethodArgumentNotValidException ex = (MethodArgumentNotValidException) e;
+            return ex.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+        } else if (e instanceof ConstraintViolationException) {
+            ConstraintViolationException ex = (ConstraintViolationException) e;
+            return ex.getConstraintViolations().stream()
+                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                    .collect(Collectors.joining(", "));
+        } else if (e instanceof HttpMessageNotReadableException) {
+            return "Malformed JSON request";
+        } else {
+            return e.getMessage();
+        }
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status, String path) {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
-                "Bad Request",
+                status.getReasonPhrase(),
                 message,
                 path
         );

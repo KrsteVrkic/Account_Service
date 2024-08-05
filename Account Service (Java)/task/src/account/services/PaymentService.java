@@ -3,6 +3,7 @@ package account.services;
 import account.entities.Payment;
 import account.entities.PaymentID;
 import account.entities.requests.PaymentRequest;
+import account.entities.requests.PaymentUpdateRequest;
 import account.entities.responses.PaymentResponse;
 import account.entities.AppUser;
 import account.entities.responses.StatusResponse;
@@ -10,6 +11,7 @@ import account.repositories.AppUserRepository;
 import account.repositories.PaymentRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -111,12 +114,63 @@ public class PaymentService {
                             e.getMessage(),
                             "/api/acct/payments")
             );
+        } catch (ConstraintViolationException e) {
+            // Handle validation exceptions
+            String messages = e.getConstraintViolations().stream()
+                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ErrorResponse(LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            "Bad Request",
+                            messages,
+                            "/api/acct/payments")
+            );
+        }
+    }
+    @Transactional
+    public ResponseEntity<?> updatePayment(PaymentUpdateRequest request) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
+            Date date = dateFormat.parse(request.getPeriod());
+
+            // Find user
+            Optional<AppUser> userOpt = userRepository.findUserByEmailIgnoreCase(request.getEmployee().toLowerCase());
+            if (userOpt.isEmpty()) {
+                throw new EntityNotFoundException("User does not exist: " + request.getEmployee());
+            }
+            AppUser user = userOpt.get();
+
+            // Find payment
+            PaymentID paymentID = new PaymentID(user.getId(), date);
+            Optional<Payment> paymentOpt = paymentRepository.findById(paymentID);
+            if (paymentOpt.isEmpty()) {
+                throw new EntityNotFoundException("Payment does not exist for this user and period");
+            }
+            Payment payment = paymentOpt.get();
+
+            // Update salary
+            payment.setSalary(request.getSalary());
+            paymentRepository.save(payment);
+
+            return new ResponseEntity<>(new StatusResponse("Updated successfully!"), HttpStatus.OK);
+
+        } catch (EntityNotFoundException | ParseException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ErrorResponse(LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            "Bad Request",
+                            e.getMessage(),
+                            "/api/acct/payments")
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ErrorResponse(LocalDateTime.now(),
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Internal Server Error",
+                            "An unexpected error occurred",
+                            "/api/acct/payments")
+            );
         }
     }
 }
-
-
-
-
-
-

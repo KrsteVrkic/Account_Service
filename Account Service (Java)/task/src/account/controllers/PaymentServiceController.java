@@ -1,6 +1,7 @@
 package account.controllers;
 
 import account.entities.requests.PaymentRequest;
+import account.entities.requests.PaymentUpdateRequest;
 import account.services.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,9 @@ public class PaymentServiceController {
     public ResponseEntity<?> postPayments(@Valid @RequestBody List<@Valid PaymentRequest> request) {
         return paymentService.postPayments(request);
     }
+    @PutMapping("/acct/payments")
+    public ResponseEntity<?> putPayment(@Valid @RequestBody PaymentUpdateRequest request) {
+        return paymentService.updatePayment(request);
+    }
 
-   /* @PutMapping("/acct/payments")
-    public ResponseEntity<?> putPayment(@RequestBody PaymentRequest paymentRequest) {
-        return paymentService.updatePayment(paymentRequest);
-    }*/
 }
