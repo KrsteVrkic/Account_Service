@@ -56,6 +56,7 @@ public class AccountService {
         appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(appUser);
 
-        return new ChangePasswordResponse(appUser.getEmail().toLowerCase(), "The password has been updated successfully");
+        return new ChangePasswordResponse(appUser.getEmail().toLowerCase(),
+                "The password has been updated successfully");
     }
 }
