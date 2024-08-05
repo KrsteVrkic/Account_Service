@@ -12,14 +12,16 @@ import org.springframework.http.ResponseEntity;
 @Validated
 @RestController
 @RequestMapping("/api/empl")
-public class PaymentController {
+public class PaymentServiceController {
 
     private final AppUserRepository userRepository;
 
-    public PaymentController(AppUserRepository userRepository) {
+    public PaymentServiceController(AppUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+
+    //clean later
     @GetMapping("/payment")
     public ResponseEntity<?> getPayment(@AuthenticationPrincipal UserDetails d) {
 
@@ -36,5 +38,4 @@ public class PaymentController {
         );
         return ResponseEntity.ok(paymentResponse);
     }
-
 }

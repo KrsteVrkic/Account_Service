@@ -1,49 +1,35 @@
 package account.controllers;
 
-import account.exceptions.UserExistException;
+import account.requests.ChangePasswordRequest;
 import account.requests.SignupRequest;
+import account.responses.ChangePasswordResponse;
 import account.responses.SignupResponse;
-import account.user.AppUser;
-import account.user.AppUserRepository;
-
+import account.services.AccountService;
+import account.services.SignupService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @Validated
 public class AccountServiceController {
 
-    private final AppUserRepository appUserRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final SignupService signupService;
+    private final AccountService accountService;
 
-    public AccountServiceController(AppUserRepository userRepository,
-                                    PasswordEncoder passwordEncoder) {
-        this.appUserRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AccountServiceController(SignupService signupService, AccountService accountService) {
+        this.signupService = signupService;
+        this.accountService = accountService;
     }
 
-    @PostMapping("/auth/signup")
-    public SignupResponse postSignup(@Valid @RequestBody SignupRequest r) {
+    @PostMapping("/signup")
+    public SignupResponse postSignup(@Valid @RequestBody SignupRequest request) {
+        return signupService.signup(request);
+    }
 
-        AppUser newUser = new AppUser();
-        newUser.setName(r.getName());
-        newUser.setLastname(r.getLastname());
-        newUser.setEmail(r.getEmail());
-        newUser.setRole("USER");
-        newUser.setPassword(passwordEncoder.encode(r.getPassword()));
-
-        if (appUserRepository.findUserByEmailIgnoreCase(r.getEmail()).isPresent()) {
-            throw new UserExistException();
-        }
-
-        AppUser savedUser = appUserRepository.save(newUser);
-        return new SignupResponse(savedUser.getId(),
-                savedUser.getName(),
-                savedUser.getLastname(),
-                savedUser.getEmail()
-        );
+    @PostMapping("/changepass")
+    public ChangePasswordResponse postChangePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        return accountService.changePassword(request);
     }
 }

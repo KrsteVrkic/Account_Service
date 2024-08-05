@@ -2,6 +2,7 @@ package account.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -26,6 +27,7 @@ public class AppUser {
     @Column(unique = true)
     private String email;
     @NonNull
+    @Size(min = 12)
     private String password;
     @NonNull
     private String role;

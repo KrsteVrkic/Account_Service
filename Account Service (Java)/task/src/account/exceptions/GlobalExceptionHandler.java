@@ -1,7 +1,6 @@
 package account.exceptions;
 
 import account.responses.ErrorResponse;
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,21 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(UserExistException.class)
-    public ResponseEntity<ErrorResponse> handleUserExistException(UserExistException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                "/api/auth/signup"
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleInvalidArgument(MethodArgumentNotValidException e,
@@ -37,13 +23,40 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
         String message = String.join(", ", messages);
-        ErrorResponse body = new ErrorResponse(
+        return buildErrorResponse(message, HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(UserExistException.class)
+    public ResponseEntity<ErrorResponse> handleUserExistException(UserExistException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(PasswordTooShortException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordTooShortException(PasswordTooShortException ex,
+                                                                         HttpServletRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(PasswordBreachedException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordBreachedException(PasswordBreachedException ex,
+                                                                         HttpServletRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(PasswordSameAsCurrentException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordSameAsCurrentException(PasswordSameAsCurrentException ex,
+                                                                              HttpServletRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status, String path) {
+        ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                status.value(),
                 "Bad Request",
                 message,
-                request.getRequestURI()
+                path
         );
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, status);
     }
 }
