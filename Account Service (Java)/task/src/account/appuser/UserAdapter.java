@@ -1,5 +1,6 @@
-package account.user;
+package account.appuser;
 
+import account.entity.AppUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,5 +1,6 @@
-package account.user;
+package account.appuser;
 
+import account.entity.AppUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

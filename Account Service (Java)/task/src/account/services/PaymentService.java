@@ -2,8 +2,8 @@ package account.services;
 
 import account.exceptions.UserNotFoundException;
 import account.responses.PaymentResponse;
-import account.user.AppUser;
-import account.user.AppUserRepository;
+import account.entity.AppUser;
+import account.appuser.AppUserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,7 +29,6 @@ public class PaymentService {
         }
 
         AppUser user = userOptional.get();
-
         return new PaymentResponse(
                 user.getId(),
                 user.getName(),

@@ -2,12 +2,11 @@ package account.services;
 
 import account.exceptions.PasswordBreachedException;
 import account.security.BreachedPasswords;
-import account.exceptions.PasswordTooShortException;
 import account.exceptions.UserExistException;
 import account.requests.SignupRequest;
 import account.responses.SignupResponse;
-import account.user.AppUser;
-import account.user.AppUserRepository;
+import account.entity.AppUser;
+import account.appuser.AppUserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
