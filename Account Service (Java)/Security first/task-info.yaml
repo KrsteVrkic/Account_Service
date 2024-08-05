@@ -1,0 +1,93 @@
+type: edu
+custom_name: Security first!
+files:
+  - name: src/account/AccountServiceApplication.java
+    visible: true
+    learner_created: false
+  - name: src/resources/application.properties
+    visible: true
+    learner_created: false
+  - name: build.gradle
+    visible: true
+    learner_created: false
+  - name: test/AccountServiceTest.java
+    visible: false
+    learner_created: false
+  - name: src/account/exceptions/GlobalExceptionHandler.java
+    visible: true
+    learner_created: true
+  - name: src/account/responses/ErrorResponse.java
+    visible: true
+    learner_created: true
+  - name: src/account/requests/SignupRequest.java
+    visible: true
+    learner_created: true
+  - name: src/account/controllers/AccountServiceController.java
+    visible: true
+    learner_created: true
+  - name: src/account/exceptions/UserExistException.java
+    visible: true
+    learner_created: true
+  - name: src/account/security/RestAuthenticationEntryPoint.java
+    visible: true
+    learner_created: true
+  - name: src/account/responses/SignupResponse.java
+    visible: true
+    learner_created: true
+  - name: src/account/responses/PaymentResponse.java
+    visible: true
+    learner_created: true
+  - name: src/account/security/SecurityConfig.java
+    visible: true
+    learner_created: true
+  - name: src/account/controllers/PaymentServiceController.java
+    visible: true
+    learner_created: true
+  - name: src/account/user/AppUserDetailsServiceImpl.java
+    visible: true
+    learner_created: true
+  - name: src/account/user/AppUser.java
+    visible: true
+    learner_created: true
+  - name: src/account/user/AppUserRepository.java
+    visible: true
+    learner_created: true
+  - name: src/account/user/UserAdapter.java
+    visible: true
+    learner_created: true
+  - name: src/account/exceptions/PasswordTooShortException.java
+    visible: true
+    learner_created: true
+  - name: src/account/security/BreachedPasswords.java
+    visible: true
+    learner_created: true
+  - name: src/account/services/SignupService.java
+    visible: true
+    learner_created: true
+  - name: src/account/exceptions/PasswordBreachedException.java
+    visible: true
+    learner_created: true
+  - name: src/resources/breached_passwords.json
+    visible: true
+    learner_created: true
+  - name: src/account/services/AccountService.java
+    visible: true
+    learner_created: true
+  - name: src/account/requests/ChangePasswordRequest.java
+    visible: true
+    learner_created: true
+  - name: src/account/exceptions/UserNotFoundException.java
+    visible: true
+    learner_created: true
+  - name: src/account/exceptions/PasswordSameAsCurrentException.java
+    visible: true
+    learner_created: true
+  - name: src/account/responses/ChangePasswordResponse.java
+    visible: true
+    learner_created: true
+feedback_link: https://hyperskill.org/learn/step/16603#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Mon, 05 Aug 2024 00:33:11 UTC"
+record: 3

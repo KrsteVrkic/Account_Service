@@ -1,9 +1,9 @@
 package account.controllers;
 
-import account.requests.ChangePasswordRequest;
-import account.requests.SignupRequest;
-import account.responses.ChangePasswordResponse;
-import account.responses.SignupResponse;
+import account.entities.requests.ChangePasswordRequest;
+import account.entities.requests.SignupRequest;
+import account.entities.responses.ChangePasswordResponse;
+import account.entities.responses.SignupResponse;
 import account.services.AccountService;
 import account.services.SignupService;
 import org.springframework.validation.annotation.Validated;

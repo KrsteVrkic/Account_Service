@@ -1,6 +1,6 @@
-package account.appuser;
+package account.repositories;
 
-import account.entity.AppUser;
+import account.entities.AppUser;
 import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
