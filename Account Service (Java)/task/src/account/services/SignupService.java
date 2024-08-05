@@ -3,10 +3,10 @@ package account.services;
 import account.exceptions.PasswordBreachedException;
 import account.security.BreachedPasswords;
 import account.exceptions.UserExistException;
-import account.requests.SignupRequest;
-import account.responses.SignupResponse;
-import account.entity.AppUser;
-import account.appuser.AppUserRepository;
+import account.entities.requests.SignupRequest;
+import account.entities.responses.SignupResponse;
+import account.entities.AppUser;
+import account.repositories.AppUserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
