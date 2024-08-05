@@ -1,9 +1,14 @@
 package account.controllers;
 
-import account.entities.responses.PaymentResponse;
+import account.entities.requests.PaymentRequest;
 import account.services.PaymentService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.util.List;
 
 @Validated
 @RestController
@@ -17,35 +22,17 @@ public class PaymentServiceController {
     }
 
     @GetMapping("/empl/payment")
-    public PaymentResponse getPayment() {
-        return paymentService.getPayment();
+    public ResponseEntity<?> getPayment(@RequestParam(required = false) String period) throws ParseException {
+        return paymentService.getPayment(period);
     }
 
+    @PostMapping("/acct/payments")
+    public ResponseEntity<?> postPayments(@Valid @RequestBody List<@Valid PaymentRequest> request) {
+        return paymentService.postPayments(request);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   /* @PutMapping("/acct/payments")
+    public ResponseEntity<?> putPayment(@RequestBody PaymentRequest paymentRequest) {
+        return paymentService.updatePayment(paymentRequest);
+    }*/
 }

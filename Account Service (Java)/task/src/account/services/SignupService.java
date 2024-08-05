@@ -29,16 +29,9 @@ public class SignupService {
     }
 
     public SignupResponse signup(SignupRequest request) {
-
         List<String> breachedPasswords = this.breachedPasswords.getBreachedPasswords();
-        if (breachedPasswords.contains(request.getPassword())) {
-            throw new PasswordBreachedException();
-        }
-
-        if (userRepository.findUserByEmailIgnoreCase(request.getEmail()).isPresent()) {
-            throw new UserExistException();
-        }
-
+        if (breachedPasswords.contains(request.getPassword())) throw new PasswordBreachedException();
+        if (userRepository.findUserByEmailIgnoreCase(request.getEmail()).isPresent()) throw new UserExistException();
         AppUser savedUser = createAndSaveUser(request);
         return toSignupResponse(savedUser);
     }
@@ -50,7 +43,6 @@ public class SignupService {
         newUser.setEmail(request.getEmail());
         newUser.setRole("USER");
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-
         return userRepository.save(newUser);
     }
 

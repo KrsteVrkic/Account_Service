@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface AppUserRepository extends CrudRepository<AppUser, Long> {
     Optional<AppUser> findUserByEmailIgnoreCase(String email);
+
+    Optional<Object> findUserByEmail(String lowerCase);
 }

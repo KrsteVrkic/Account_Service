@@ -10,9 +10,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+@Validated
 @RestController
 @RequestMapping("/api/auth")
-@Validated
 public class AccountServiceController {
 
     private final SignupService signupService;

@@ -35,12 +35,20 @@ public class SecurityConfig {
                 // H2 console
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/actuator/shutdown").permitAll()
+                        // New user signup - NONE
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
+                        // Changing password - BASIC
+                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").authenticated()
+                        // Get all payment info by period - BASIC
                         .requestMatchers(HttpMethod.GET, "/api/empl/payment").authenticated()
+                        // Store payment info in database - NONE
+                        .requestMatchers(HttpMethod.POST, "/api/acct/payments").permitAll()
+                        // Update salaries of specified users in the database - NONE
+                        .requestMatchers(HttpMethod.PUT, "/api/acct/payments").permitAll()
                         // Fix this later
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/actuator/shutdown").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(sessions -> sessions
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
