@@ -1,6 +1,6 @@
 package account.controllers;
 
-import account.entities.responses.PaymentResponse;
+import account.responses.PaymentResponse;
 import account.services.PaymentService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

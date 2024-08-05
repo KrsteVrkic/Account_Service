@@ -1,9 +1,9 @@
 package account.services;
 
 import account.exceptions.UserNotFoundException;
-import account.entities.responses.PaymentResponse;
-import account.entities.AppUser;
-import account.repositories.AppUserRepository;
+import account.responses.PaymentResponse;
+import account.entity.AppUser;
+import account.appuser.AppUserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
