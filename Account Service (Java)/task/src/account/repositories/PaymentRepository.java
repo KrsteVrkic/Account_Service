@@ -4,6 +4,8 @@ import account.entities.PaymentID;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 public interface PaymentRepository extends CrudRepository<Payment, PaymentID> {
-    Iterable<Payment> findAllByUserIdOrderByPeriodDesc(@NotNull Long userId);
+    List<Payment> findAllByUserIdOrderByPeriodDesc(@NotNull Long userId);
 }

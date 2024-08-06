@@ -31,7 +31,7 @@ public class PaymentServiceController {
     }
 
     @PutMapping("/acct/payments")
-    public ResponseEntity<?> putPayment(@Valid @RequestBody PaymentUpdateRequest request) {
+    public ResponseEntity<?> putPayment(@Valid @RequestBody PaymentUpdateRequest request) throws ParseException {
         return paymentService.updatePayment(request);
     }
 }
