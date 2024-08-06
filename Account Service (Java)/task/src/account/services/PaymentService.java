@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class PaymentService {
     private final AppUserRepository userRepository;
     private final PaymentRepository paymentRepository;
+
     public PaymentService(AppUserRepository userRepository, PaymentRepository paymentRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
@@ -38,36 +39,30 @@ public class PaymentService {
 
     /**
      * Fetches payment details for the currently authenticated user.
+     *
      * @param period Optional parameter specifying the payment period in "MM-yyyy" format.
      * @return ResponseEntity containing payment details or a list of payments if period is null.
      */
-    public ResponseEntity<?> getPayment(String period) {
+    public ResponseEntity<?> getPayment(String period) throws ParseException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        try {
-            Optional<AppUser> user = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
-            if (user.isEmpty()) throw new EntityNotFoundException("User not found");
-
-            if (period != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
-                Date date = dateFormat.parse(period);
-
-                Payment payment = paymentRepository.findById(new PaymentID(user.get().getId(), date))
-                        .orElseThrow(() -> new EntityNotFoundException("Payment record not found"));
-
-                PaymentResponse response = createPaymentResponse(user.get(), payment);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                // Get all payments for the user if period is not specified
-                List<PaymentResponse> response = paymentRepository.findAllByUserIdOrderByPeriodDesc(user.get().getId()).stream()
-                        .map(payment -> createPaymentResponse(user.get(), payment))
-                        .collect(Collectors.toList());
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            }
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid date format");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
+        Optional<AppUser> user = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
+        if (user.isEmpty()) throw new EntityNotFoundException("User not found");
+        if (period != null) {
+            Date date = dateFormat.parse(period);
+            Payment payment = paymentRepository.findById(new PaymentID(user.get().getId(), date))
+                    .orElseThrow(() -> new EntityNotFoundException("Payment record not found"));
+            PaymentResponse response = createPaymentResponse(user.get(), payment);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else { // Get all payments for the user if period is not specified
+            List<PaymentResponse> response =
+                    paymentRepository.findAllByUserIdOrderByPeriodDesc(user.get().getId()).stream()
+                    .map(payment -> createPaymentResponse(user.get(), payment))
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
+
     }
 
     private PaymentResponse createPaymentResponse(AppUser user, Payment payment) {
@@ -81,6 +76,7 @@ public class PaymentService {
 
     /**
      * Posts a list of payment requests, creating new payments if they do not exist.
+     *
      * @param request List of PaymentRequest objects containing payment details to be posted.
      */
     @Transactional
@@ -110,10 +106,12 @@ public class PaymentService {
 
     /**
      * Updates an existing payment record with new salary information.
+     *
      * @param request PaymentUpdateRequest containing updated payment details.
      */
     @Transactional
-    public ResponseEntity<?> updatePayment(PaymentUpdateRequest request) throws ParseException, EntityNotFoundException {
+    public ResponseEntity<?> updatePayment(PaymentUpdateRequest request) throws ParseException,
+            EntityNotFoundException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
         Date date = dateFormat.parse(request.getPeriod());
         Optional<AppUser> userOpt = userRepository.findUserByEmailIgnoreCase(request.getEmployee());
