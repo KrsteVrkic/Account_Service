@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler({
             MethodArgumentNotValidException.class,
             ConstraintViolationException.class,

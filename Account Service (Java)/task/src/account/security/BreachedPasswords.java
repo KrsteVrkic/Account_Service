@@ -1,5 +1,4 @@
 package account.security;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Configuration;
@@ -7,17 +6,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
-
 import java.io.IOException;
 import java.util.List;
 
 @Data
 @Configuration
 public class BreachedPasswords {
-
     private List<String> breachedPasswords;
     private final String fileName = "breached_passwords.json";
-
     @PostConstruct
     public void loadBreachedPasswords() {
         try {

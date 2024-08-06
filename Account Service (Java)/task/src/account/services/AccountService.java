@@ -1,5 +1,4 @@
 package account.services;
-
 import account.exceptions.PasswordBreachedException;
 import account.exceptions.PasswordEqualsException;
 import account.exceptions.UserNotFoundException;
@@ -13,16 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
 public class AccountService {
-
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BreachedPasswords breachedPasswords;
-
     public AccountService(AppUserRepository userRepository,
                           PasswordEncoder passwordEncoder,
                           BreachedPasswords breachedPasswords) {
@@ -32,31 +28,20 @@ public class AccountService {
     }
 
     public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         Optional<AppUser> userOptional = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
-        if (userOptional.isEmpty()) {
-            throw new UserNotFoundException();
-        }
-
+        if (userOptional.isEmpty()) throw new UserNotFoundException();
         AppUser appUser = userOptional.get();
         String newPassword = request.getNewPassword();
         String encodedPassword = appUser.getPassword();
-
-        if (passwordEncoder.matches(newPassword, encodedPassword)) {
-            throw new PasswordEqualsException();
-        }
-
-        if (breachedPasswords.isBreached(newPassword)) {
-            throw new PasswordBreachedException();
-        }
-
+        if (passwordEncoder.matches(newPassword, encodedPassword)) throw new PasswordEqualsException();
+        if (breachedPasswords.isBreached(newPassword)) throw new PasswordBreachedException();
         appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(appUser);
-
-        return new ChangePasswordResponse(appUser.getEmail().toLowerCase(),
+        return new ChangePasswordResponse(appUser
+                .getEmail()
+                .toLowerCase(),
                 "The password has been updated successfully");
     }
 }

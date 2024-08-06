@@ -15,11 +15,9 @@ import java.util.List;
 
 @Service
 public class SignupService {
-
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BreachedPasswords breachedPasswords;
-
     public SignupService(AppUserRepository userRepository,
                          PasswordEncoder passwordEncoder,
                          BreachedPasswords breachedPasswords) {

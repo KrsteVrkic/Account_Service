@@ -1,5 +1,4 @@
 package account.entities;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Table(name = "users")
 public class AppUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

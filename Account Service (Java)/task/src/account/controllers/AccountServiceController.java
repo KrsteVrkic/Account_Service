@@ -1,5 +1,4 @@
 package account.controllers;
-
 import account.entities.requests.ChangePasswordRequest;
 import account.entities.requests.SignupRequest;
 import account.entities.responses.ChangePasswordResponse;
@@ -14,10 +13,8 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 public class AccountServiceController {
-
     private final SignupService signupService;
     private final AccountService accountService;
-
     public AccountServiceController(SignupService signupService, AccountService accountService) {
         this.signupService = signupService;
         this.accountService = accountService;
