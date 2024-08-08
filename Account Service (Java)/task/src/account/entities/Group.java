@@ -8,7 +8,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "principle_groups")
-public class UserGroup{
+public class Group{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,5 +19,5 @@ public class UserGroup{
     private String name;
 
     @ManyToMany(mappedBy = "userGroups")
-    private Set<AppUser> users;
+    private Set<UserEntity> users;
 }

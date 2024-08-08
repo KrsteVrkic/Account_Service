@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.Group;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +15,8 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-@Table(name = "users")
-public class AppUser {
+@Table(name = "user")
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,8 +51,18 @@ public class AppUser {
             CascadeType.MERGE
     })
     @JoinTable(name = "user_groups",
-            joinColumns = @JoinColumn(name = "customer_id"),
+            joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id"
             ))
     private Set<Group> userGroups = new HashSet<>();
+
+    public void addUserGroups(Group group){
+        userGroups.add(group);
+        group.getUsers().add(this);
+    }
+
+    public void removeUserGroups(Group group){
+        userGroups.remove(group);
+        group.getUsers().remove(this);
+    }
 }

@@ -5,8 +5,8 @@ import account.exceptions.UserNotFoundException;
 import account.entities.requests.ChangePasswordRequest;
 import account.entities.responses.ChangePasswordResponse;
 import account.security.BreachedPasswords;
-import account.entities.AppUser;
-import account.repositories.AppUserRepository;
+import account.entities.UserEntity;
+import account.repositories.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,10 +16,10 @@ import java.util.Optional;
 
 @Service
 public class AccountService {
-    private final AppUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BreachedPasswords breachedPasswords;
-    public AccountService(AppUserRepository userRepository,
+    public AccountService(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
                           BreachedPasswords breachedPasswords) {
         this.userRepository = userRepository;
@@ -30,16 +30,16 @@ public class AccountService {
     public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Optional<AppUser> userOptional = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
+        Optional<UserEntity> userOptional = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
         if (userOptional.isEmpty()) throw new UserNotFoundException();
-        AppUser appUser = userOptional.get();
+        UserEntity userEntity = userOptional.get();
         String newPassword = request.getNewPassword();
-        String encodedPassword = appUser.getPassword();
+        String encodedPassword = userEntity.getPassword();
         if (passwordEncoder.matches(newPassword, encodedPassword)) throw new PasswordEqualsException();
         if (breachedPasswords.isBreached(newPassword)) throw new PasswordBreachedException();
-        appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(appUser);
-        return new ChangePasswordResponse(appUser
+        userEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(userEntity);
+        return new ChangePasswordResponse(userEntity
                 .getEmail()
                 .toLowerCase(),
                 "The password has been updated successfully");

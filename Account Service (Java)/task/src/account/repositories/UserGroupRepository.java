@@ -1,7 +1,7 @@
 package account.repositories;
 
-import account.entities.UserGroup;
+import account.entities.Group;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserGroupRepository extends CrudRepository<UserGroup, String> {
+public interface UserGroupRepository extends CrudRepository<Group, Long> {
 }

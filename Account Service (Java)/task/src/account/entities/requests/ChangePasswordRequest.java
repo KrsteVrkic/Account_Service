@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ChangePasswordRequest {
+
     @JsonProperty("new_password")
     @NotEmpty(message = "Password cannot be empty")
     @Size(min = 12, message = "Password length must be 12 chars minimum!")

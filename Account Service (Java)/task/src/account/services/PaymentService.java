@@ -5,9 +5,9 @@ import account.entities.PaymentID;
 import account.entities.requests.PaymentRequest;
 import account.entities.requests.PaymentUpdateRequest;
 import account.entities.responses.PaymentResponse;
-import account.entities.AppUser;
+import account.entities.UserEntity;
 import account.entities.responses.StatusResponse;
-import account.repositories.AppUserRepository;
+import account.repositories.UserRepository;
 import account.repositories.PaymentRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
-    private final AppUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
 
-    public PaymentService(AppUserRepository userRepository, PaymentRepository paymentRepository) {
+    public PaymentService(UserRepository userRepository, PaymentRepository paymentRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
     }
@@ -47,7 +47,7 @@ public class PaymentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
-        Optional<AppUser> user = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
+        Optional<UserEntity> user = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
         if (user.isEmpty()) throw new EntityNotFoundException("User not found");
         if (period != null) {
             Date date = dateFormat.parse(period);
@@ -65,7 +65,7 @@ public class PaymentService {
 
     }
 
-    private PaymentResponse createPaymentResponse(AppUser user, Payment payment) {
+    private PaymentResponse createPaymentResponse(UserEntity user, Payment payment) {
         PaymentResponse response = new PaymentResponse();
         response.setName(user.getName());
         response.setLastname(user.getLastname());
@@ -82,12 +82,12 @@ public class PaymentService {
     @Transactional
     public ResponseEntity<?> postPayments(List<PaymentRequest> request) {
         List<Payment> payments = new ArrayList<>();
-        List<AppUser> users = request.stream()
+        List<UserEntity> users = request.stream()
                 .map(req -> userRepository.findUserByEmailIgnoreCase(req.getEmployee().toLowerCase())
                         .orElseThrow(EntityNotFoundException::new))
                 .toList();
         request.forEach(req -> {
-            AppUser user = users.stream()
+            UserEntity user = users.stream()
                     .filter(u -> u.getEmail().equalsIgnoreCase(req.getEmployee()))
                     .findFirst()
                     .orElseThrow(() -> new EntityNotFoundException("User does not exist: " + req.getEmployee()));
@@ -114,9 +114,9 @@ public class PaymentService {
             EntityNotFoundException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
         Date date = dateFormat.parse(request.getPeriod());
-        Optional<AppUser> userOpt = userRepository.findUserByEmailIgnoreCase(request.getEmployee());
+        Optional<UserEntity> userOpt = userRepository.findUserByEmailIgnoreCase(request.getEmployee());
         if (userOpt.isEmpty()) throw new EntityNotFoundException();
-        AppUser user = userOpt.get();
+        UserEntity user = userOpt.get();
 
         PaymentID paymentID = new PaymentID(user.getId(), date);
         Optional<Payment> paymentOpt = paymentRepository.findById(paymentID);
