@@ -1,25 +1,28 @@
 package account.entities;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Data
+@Table(name = "payment")
 @IdClass(PaymentID.class)
 public class Payment {
 
     @Id
-    @NotNull
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @PrimaryKeyJoinColumn(name = "id")
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @Id
-    @NotNull
     @Temporal(TemporalType.DATE)
+    @Column(name = "period", nullable = false)
     private Date period;
 
-    @NotNull
+    @Column(name = "salary", nullable = false)
     private Long salary;
 }

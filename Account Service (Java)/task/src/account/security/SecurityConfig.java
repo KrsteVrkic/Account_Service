@@ -1,4 +1,5 @@
 package account.security;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,7 +14,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
+
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+
     public SecurityConfig(RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
     }
@@ -28,24 +31,21 @@ public class SecurityConfig {
         http
                 .httpBasic(Customizer.withDefaults())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
-                // Postman
                 .csrf(AbstractHttpConfigurer::disable)
-                // H2 console
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(auth -> auth
-                        // New user signup - NONE
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
-                        // Changing password - BASIC
-                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").authenticated()
-                        // Get all payment info by period - BASIC
-                        .requestMatchers(HttpMethod.GET, "/api/empl/payment").authenticated()
-                        // Store payment info in database - NONE
-                        .requestMatchers(HttpMethod.POST, "/api/acct/payments").permitAll()
-                        // Update salaries of specified users in the database - NONE
-                        .requestMatchers(HttpMethod.PUT, "/api/acct/payments").permitAll()
-                        // Fix this later
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyAuthority("ROLE_USER",
+                                "ROLE_ACCOUNTANT", "ROLE_ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/empl/payment").hasAnyAuthority("ROLE_USER",
+                                "ROLE_ACCOUNTANT", "ROLE_ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/acct/payments").hasAnyAuthority("ROLE_ACCOUNTANT")
+                        .requestMatchers(HttpMethod.PUT, "/api/acct/payments").hasAnyAuthority("ROLE_ACCOUNTANT")
+                        .requestMatchers(HttpMethod.GET, "/api/admin/user/**").hasAuthority("ROLE_ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin/user/**").hasAuthority("ROLE_ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAuthority("ROLE_ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST, "/actuator/shutdown").permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(sessions -> sessions
@@ -53,4 +53,6 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
+
 }

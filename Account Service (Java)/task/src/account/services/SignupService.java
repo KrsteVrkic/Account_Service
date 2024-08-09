@@ -1,7 +1,8 @@
 package account.services;
 
-import account.entities.UserEntity;
-import account.entities.Group;
+import account.entities.*;
+import account.security.BreachedPasswords;
+import account.exceptions.PasswordBreachedException;
 import account.exceptions.UserExistException;
 import account.repositories.GroupRepository;
 import account.repositories.UserRepository;
@@ -13,15 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SignupService {
 
+    private final BreachedPasswords breachedPasswords;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public SignupService(UserRepository userRepository, GroupRepository groupRepository, PasswordEncoder passwordEncoder) {
+    public SignupService(BreachedPasswords breachedPasswords, UserRepository userRepository, GroupRepository groupRepository, PasswordEncoder passwordEncoder) {
+
+        this.breachedPasswords = breachedPasswords;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.passwordEncoder = passwordEncoder;
@@ -30,39 +35,36 @@ public class SignupService {
     @Transactional
     public SignupResponse signup(SignupRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserExistException();
-        }
+        if (breachedPasswords.isBreached(request.getPassword())) throw new PasswordBreachedException();
+        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) throw new UserExistException();
 
         UserEntity userEntity = new UserEntity(
                 request.getName(),
                 request.getLastname(),
-                request.getEmail(),
+                request.getEmail().toLowerCase(),
                 passwordEncoder.encode(request.getPassword())
         );
 
-        Set<Group> roles = new HashSet<>();
-        if (userRepository.count() == 0) {
-            Group adminGroup = groupRepository.findByCode("ROLE_ADMINISTRATOR");
-            roles.add(adminGroup);
-        } else {
-            Group userGroup = groupRepository.findByCode("ROLE_USER");
-            roles.add(userGroup);
-        }
-        userEntity.setUserGroups(roles);
+        Group adminGroup = groupRepository.findByCode("ROLE_ADMINISTRATOR").get();
+        Group userGroup = groupRepository.findByCode("ROLE_USER").get();
+        Group groupToAdd = userRepository.count() == 0 ? adminGroup : userGroup;
 
+        Set<Group> roles = new HashSet<>();
+        roles.add(groupToAdd);
+        userEntity.setUserGroups(roles);
+        userEntity.setAccountVerified(true);
         userRepository.save(userEntity);
 
-        // Create response
         return new SignupResponse(
                 userEntity.getId(),
                 userEntity.getName(),
                 userEntity.getLastname(),
                 userEntity.getEmail(),
-                userEntity.getUserGroups().stream()
+                userEntity.getUserGroups()
+                        .stream()
                         .map(Group::getCode)
                         .sorted()
-                        .toArray(String[]::new)
+                        .collect(Collectors.toList())
         );
     }
 }

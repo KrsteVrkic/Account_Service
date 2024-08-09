@@ -6,7 +6,6 @@
     import java.util.Optional;
 
     public interface GroupRepository extends CrudRepository<Group, Long> {
-        boolean existsByCode(String code);
+        Optional<Group> findByCode(String role);
 
-        Group findByCode(String roleUser);
     }

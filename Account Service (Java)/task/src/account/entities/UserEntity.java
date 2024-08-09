@@ -3,10 +3,7 @@ package account.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +12,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @RequiredArgsConstructor
-@Table(name = "user")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -46,7 +43,10 @@ public class UserEntity {
     @Column
     private boolean loginDisabled;
 
-    @ManyToMany(cascade = {
+    @Setter
+    @Getter
+    @ManyToMany(fetch = FetchType.EAGER,
+            cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
@@ -56,13 +56,9 @@ public class UserEntity {
             ))
     private Set<Group> userGroups = new HashSet<>();
 
-    public void addUserGroups(Group group){
-        userGroups.add(group);
-        group.getUsers().add(this);
+    @Override
+    public String toString() {
+        return "UserEntity{id=" + id + ", name='" + name + "', email='" + email + "'}";
     }
 
-    public void removeUserGroups(Group group){
-        userGroups.remove(group);
-        group.getUsers().remove(this);
-    }
 }

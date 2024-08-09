@@ -38,9 +38,6 @@ public class PaymentService {
     }
 
     /**
-     * Fetches payment details for the currently authenticated user.
-     *
-     * @param period Optional parameter specifying the payment period in "MM-yyyy" format.
      * @return ResponseEntity containing payment details or a list of payments if period is null.
      */
     public ResponseEntity<?> getPayment(String period) throws ParseException {
@@ -75,8 +72,6 @@ public class PaymentService {
     }
 
     /**
-     * Posts a list of payment requests, creating new payments if they do not exist.
-     *
      * @param request List of PaymentRequest objects containing payment details to be posted.
      */
     @Transactional
@@ -104,11 +99,6 @@ public class PaymentService {
         return new ResponseEntity<>(new StatusResponse("Added successfully!"), HttpStatus.OK);
     }
 
-    /**
-     * Updates an existing payment record with new salary information.
-     *
-     * @param request PaymentUpdateRequest containing updated payment details.
-     */
     @Transactional
     public ResponseEntity<?> updatePayment(PaymentUpdateRequest request) throws ParseException,
             EntityNotFoundException {
