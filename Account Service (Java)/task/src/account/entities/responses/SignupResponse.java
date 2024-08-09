@@ -15,5 +15,4 @@ public class SignupResponse {
     private String lastname;
     private String email;
     private List<String> roles;
-
 }

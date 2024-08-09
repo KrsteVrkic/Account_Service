@@ -8,10 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataLoader {
-
     @Resource
     private final GroupRepository groupRepository;
-
     @Autowired
     public DataLoader(GroupRepository groupRepository) {
         this.groupRepository = groupRepository;
@@ -20,9 +18,9 @@ public class DataLoader {
 
     private void createRoles() {
         try {
-            groupRepository.save(new Group("ROLE_ADMINISTRATOR", "Admin Group"));
-            groupRepository.save(new Group("ROLE_USER", "User Group"));
-            groupRepository.save(new Group("ROLE_ACCOUNTANT", "Hustler Group"));
+            groupRepository.save(new Group("ADMINISTRATOR", "Admin Group"));
+            groupRepository.save(new Group("ACCOUNTANT", "Accountant Group"));
+            groupRepository.save(new Group("USER", "User Group"));
         } catch (Exception Ignored) {}
     }
 }

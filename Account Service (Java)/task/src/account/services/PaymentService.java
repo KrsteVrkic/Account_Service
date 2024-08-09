@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
+
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
 
@@ -41,11 +41,14 @@ public class PaymentService {
      * @return ResponseEntity containing payment details or a list of payments if period is null.
      */
     public ResponseEntity<?> getPayment(String period) throws ParseException {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
         Optional<UserEntity> user = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername());
         if (user.isEmpty()) throw new EntityNotFoundException("User not found");
+
         if (period != null) {
             Date date = dateFormat.parse(period);
             Payment payment = paymentRepository.findById(new PaymentID(user.get().getId(), date))
@@ -59,7 +62,6 @@ public class PaymentService {
                     .collect(Collectors.toList());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-
     }
 
     private PaymentResponse createPaymentResponse(UserEntity user, Payment payment) {
@@ -76,6 +78,7 @@ public class PaymentService {
      */
     @Transactional
     public ResponseEntity<?> postPayments(List<PaymentRequest> request) {
+
         List<Payment> payments = new ArrayList<>();
         List<UserEntity> users = request.stream()
                 .map(req -> userRepository.findUserByEmailIgnoreCase(req.getEmployee().toLowerCase())
@@ -86,12 +89,15 @@ public class PaymentService {
                     .filter(u -> u.getEmail().equalsIgnoreCase(req.getEmployee()))
                     .findFirst()
                     .orElseThrow(() -> new EntityNotFoundException("User does not exist: " + req.getEmployee()));
+
             Payment payment = new Payment();
             payment.setUser(user);
             payment.setPeriod(req.getDateFromString());
             payment.setSalary(req.getSalary());
             PaymentID paymentID = new PaymentID(user.getId(), payment.getPeriod());
+
             if (paymentRepository.existsById(paymentID)) throw new EntityExistsException();
+
             payments.add(payment);
         });
 

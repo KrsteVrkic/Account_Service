@@ -1,5 +1,6 @@
 package account.services;
 
+import com.sun.jdi.InternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import account.entities.Group;
@@ -7,7 +8,6 @@ import account.entities.responses.SignupResponse;
 import account.exceptions.AdminDeletionException;
 import account.exceptions.PasswordBreachedException;
 import account.exceptions.PasswordEqualsException;
-import account.exceptions.UserNotFoundException;
 import account.entities.requests.ChangePasswordRequest;
 import account.entities.responses.ChangePasswordResponse;
 import account.repositories.GroupRepository;
@@ -16,24 +16,30 @@ import account.entities.UserEntity;
 import account.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import account.entities.requests.RoleChangeRequest;
-import org.springframework.web.server.ResponseStatusException;
-
+import static account.security.Role.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 public class AccountService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BreachedPasswords breachedPasswords;
     private final GroupRepository groupRepository;
+
+    private final String adminRole = ADMINISTRATOR.getRole();
+    private final String accountRole = ACCOUNTANT.getRole();
+    private final String userRole = USER.getRole();
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     public AccountService(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
@@ -44,21 +50,19 @@ public class AccountService {
         this.groupRepository = groupRepository;
     }
 
-    public ChangePasswordResponse changePassword(ChangePasswordRequest request, UserDetails userDetails) {
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request) {
 
-        if (breachedPasswords.isBreached(request.getNewPassword())) {
-            throw new PasswordBreachedException();
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        if (breachedPasswords.isBreached(request.getNewPassword())) throw new PasswordBreachedException();
 
         UserEntity userEntity = userRepository.findUserByEmailIgnoreCase(userDetails.getUsername())
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("User not found!"));
 
-        if (passwordEncoder.matches(request.getNewPassword(), userEntity.getPassword())) {
-            throw new PasswordEqualsException();
-        }
+        if (passwordEncoder.matches(request.getNewPassword(), userEntity.getPassword())) throw new PasswordEqualsException();
 
         userEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
         userRepository.save(userEntity);
 
         return new ChangePasswordResponse(
@@ -74,21 +78,23 @@ public class AccountService {
                         user.getName(),
                         user.getLastname(),
                         user.getEmail(),
-                        user.getUserGroups().stream().map(Group::getCode).collect(Collectors.toList())
+                        user.getUserGroups().stream()
+                                .map(group -> "ROLE_" + group.getCode())
+                                .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
     }
 
     public ResponseEntity<?> deleteUserByEmail(String email) {
+
         Optional<UserEntity> userOptional = userRepository.findUserByEmailIgnoreCase(email);
         if (userOptional.isEmpty()) throw new EntityNotFoundException("User not found!");
+
         UserEntity currentUser = userOptional.get();
         Set<Group> userGroups = currentUser.getUserGroups();
 
-        boolean isAdmin = userGroups.stream().anyMatch(group -> "ROLE_ADMINISTRATOR".equals(group.getCode()));
-        if (isAdmin) {
-            throw new AdminDeletionException();
-        }
+        boolean isAdmin = userGroups.stream().anyMatch(group -> adminRole.equals(group.getCode()));
+        if (isAdmin) throw new AdminDeletionException();
 
         userRepository.delete(currentUser);
 
@@ -98,53 +104,30 @@ public class AccountService {
     public ResponseEntity<?> changeUserRole(RoleChangeRequest request) {
 
         String email = request.getUser();
-        String role = "ROLE_" + request.getRole().toUpperCase();
-        String operation = request.getOperation();
-        Logger logger = LoggerFactory.getLogger(AccountService.class);
-        logger.info("Received role change request: User={}, Role={}, Operation={}", email, role, operation);
+        String roleCode = request.getRole().toUpperCase();
+        String operation = request.getOperation().toUpperCase();
 
-        Group group = groupRepository.findByCode(role)
+        Logger logger = LoggerFactory.getLogger(AccountService.class);
+        logger.info("Received role change request: User={}, Role={}, Operation={}", email, roleCode, operation);
+
+        Group group = groupRepository.findByCode(roleCode)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found!"));
 
         UserEntity userEntity = userRepository.findUserByEmailIgnoreCase(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found!"));
 
         Set<Group> roles = userEntity.getUserGroups();
-        boolean isAdmin = roles.stream().anyMatch(g -> "ROLE_ADMINISTRATOR".equals(g.getCode()));
+        boolean isAdmin = roles.stream().anyMatch(g -> adminRole.equals(g.getCode()));
 
-        if ("GRANT".equalsIgnoreCase(operation)) {
-            if (roles.contains(group)) {
-                throw new DataIntegrityViolationException("Role already granted!");
-            }
-
-            if (isAdmin && role.equals("ROLE_ADMINISTRATOR")) {
-                throw new IllegalArgumentException("Cannot add multiple ADMINISTRATOR roles!");
-            }
-
-            if (role.equals("ROLE_ADMINISTRATOR") && roles.stream().anyMatch(r -> r.getCode().equals("ROLE_ACCOUNTANT"))) {
-                throw new IllegalArgumentException("The user cannot combine administrative and business roles!");
-            }
-
-            if (role.equals("ROLE_ACCOUNTANT") && roles.stream().anyMatch(r -> r.getCode().equals("ROLE_ADMINISTRATOR"))) {
-                throw new IllegalArgumentException("The user cannot combine administrative and business roles!");
-            }
-
-            roles.add(group);
-        } else if ("REMOVE".equalsIgnoreCase(operation)) {
-            if (roles.stream().noneMatch(g -> group.getCode().equals(g.getCode()))) {
-                throw new IllegalArgumentException("The user does not have the specified role!");
-            }
-
-            if ("ROLE_ADMINISTRATOR".equals(role) && roles.size() == 1) {
-                throw new IllegalArgumentException("The user must have at least one role!");
-            }
-
-            if ("ROLE_ADMINISTRATOR".equals(role) && isAdmin) {
-                throw new IllegalArgumentException("Can't remove ADMINISTRATOR role!");
-            }
-            roles.remove(group);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid operation!");
+        switch (operation) {
+            case "GRANT":
+                handleRoleGranting(roles, group, roleCode, isAdmin);
+                break;
+            case "REMOVE":
+                handleRoleRemoval(roles, group, roleCode, isAdmin);
+                break;
+            default:
+                throw new DataIntegrityViolationException("Invalid operation!");
         }
 
         userEntity.setUserGroups(roles);
@@ -156,10 +139,55 @@ public class AccountService {
                 userEntity.getLastname(),
                 userEntity.getEmail(),
                 userEntity.getUserGroups().stream()
-                        .map(Group::getCode)
+                        .map(r -> "ROLE_" + r.getCode())
                         .sorted()
                         .collect(Collectors.toList())
         ));
     }
 
+
+    private void handleRoleGranting(Set<Group> roles, Group group, String roleCode, boolean isAdmin) {
+
+        if (roles.contains(group)) throw new EntityNotFoundException("Role already granted!");
+
+        if (adminRole.equals(roleCode)) {
+            // Check if the user already has an ADMINISTRATOR role
+            if (isAdmin) throw new IllegalArgumentException("Cannot add multiple ADMINISTRATOR roles!");
+            // Ensure user doesn't have business roles
+            if (roles.stream().anyMatch(r -> accountRole.equals(r.getCode()) || userRole.equals(r.getCode()))) {
+                throw new IllegalArgumentException("The user cannot combine administrative and business roles!");
+            }
+        } else if (accountRole.equals(roleCode)) {
+            // Check if the user is an ADMINISTRATOR
+            if (isAdmin) throw new IllegalArgumentException("The user cannot combine administrative and business " +
+                    "roles!");
+        } else if (userRole.equals(roleCode)) {
+            // Check if the user is an ADMINISTRATOR
+            if (isAdmin) throw new IllegalArgumentException("The user cannot combine administrative and business " +
+                    "roles!");
+            // No restriction on assigning USER role to a user with ACCOUNTANT role
+        } else {
+            throw new InternalException("Internal Server Error");
+        }
+
+        roles.add(group);
+    }
+
+    private void handleRoleRemoval(Set<Group> roles, Group group, String roleCode, boolean isAdmin) {
+
+        Logger logger = LoggerFactory.getLogger(AccountService.class);
+        logger.info("hello from remove roles");
+
+        if (!roles.contains(group)) throw new IllegalArgumentException("The user does not have a role!");
+
+        if (adminRole.equals(roleCode)) {
+            if (isAdmin) {
+                throw new IllegalArgumentException("Can't remove ADMINISTRATOR role!");
+            }
+        }
+
+        if (roles.size() == 1) throw new IllegalArgumentException("The user must have at least one role!");
+
+        roles.remove(group);
+    }
 }

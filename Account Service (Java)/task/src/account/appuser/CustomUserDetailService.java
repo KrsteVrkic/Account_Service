@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -35,15 +34,12 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         email = email.toLowerCase();
         logger.info("Attempting to load user by email: {}", email);
-
         final UserEntity customer = userRepository.findByEmail(email);
         if (customer == null) {
             logger.error("User not found with email: {}", email);
             throw new UsernameNotFoundException(email);
         }
-
         logger.info("User found: {}", email);
-
         return User.withUsername(customer.getEmail().toLowerCase())
                 .password(customer.getPassword())
                 .disabled(customer.isLoginDisabled())

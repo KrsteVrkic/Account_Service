@@ -8,21 +8,19 @@ import account.entities.requests.RoleChangeRequest;
 import account.services.AccountService;
 import account.services.SignupService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
 import java.util.List;
 
 @Validated
 @RestController
 @RequestMapping("/api")
 public class AccountServiceController {
+
     private final SignupService signupService;
     private final AccountService accountService;
+
     public AccountServiceController(SignupService signupService, AccountService accountService) {
         this.signupService = signupService;
         this.accountService = accountService;
@@ -34,14 +32,15 @@ public class AccountServiceController {
     }
 
     @PostMapping("/auth/changepass")
-    public ChangePasswordResponse postChangePassword(@AuthenticationPrincipal UserDetails userDetails,
-                                                     @Valid @RequestBody ChangePasswordRequest request) {
-        return accountService.changePassword(request, userDetails);
+    public ChangePasswordResponse postChangePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        return accountService.changePassword(request);
     }
+
     @GetMapping("/admin/user/")
     public List<SignupResponse> getAllUsers() {
         return accountService.getAllUsers();
     }
+
     @DeleteMapping("/admin/user/{email}")
     public ResponseEntity<?> deleteUser(@PathVariable String email) {
         return accountService.deleteUserByEmail(email);

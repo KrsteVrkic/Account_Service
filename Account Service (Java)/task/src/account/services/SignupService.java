@@ -11,8 +11,8 @@ import account.entities.responses.SignupResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static account.security.Role.*;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,13 +45,11 @@ public class SignupService {
                 passwordEncoder.encode(request.getPassword())
         );
 
-        Group adminGroup = groupRepository.findByCode("ROLE_ADMINISTRATOR").get();
-        Group userGroup = groupRepository.findByCode("ROLE_USER").get();
+        Group adminGroup = groupRepository.findByCode(ADMINISTRATOR.getRole()).get();
+        Group userGroup = groupRepository.findByCode(USER.getRole()).get();
         Group groupToAdd = userRepository.count() == 0 ? adminGroup : userGroup;
 
-        Set<Group> roles = new HashSet<>();
-        roles.add(groupToAdd);
-        userEntity.setUserGroups(roles);
+        userEntity.setUserGroups(Set.of(groupToAdd));
         userEntity.setAccountVerified(true);
         userRepository.save(userEntity);
 
@@ -62,7 +60,7 @@ public class SignupService {
                 userEntity.getEmail(),
                 userEntity.getUserGroups()
                         .stream()
-                        .map(Group::getCode)
+                        .map(r -> "ROLE_" + r.getCode())
                         .sorted()
                         .collect(Collectors.toList())
         );

@@ -1,4 +1,5 @@
 package account.security;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,6 @@ public class BreachedPasswords {
             System.out.println("Error loading file: " + fileName);
         }
     }
-
     public boolean isBreached(String password) {
         return breachedPasswords.contains(password);
     }
